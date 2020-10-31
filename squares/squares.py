@@ -1,29 +1,39 @@
-from PIL import Image
+from PIL import Image, ImageDraw
 import random
 
+class Square():
+    def __init__(self, image):
+        self.colors = [(230, 57, 70), (241, 250, 238), (168, 218, 220),\
+                       (69, 123, 157), (29, 53, 87)]
+        self.borders = list()
+        self._draw = ImageDraw.Draw(image)
+        self.size = image.size
 
-palette_colors = [(230, 57, 70), (241, 250, 238), (168, 218, 220),\
-                  (69, 123, 157), (29, 53, 87)]
+        # for _compute_borders
+        self.up_to = lambda loc, t_bonsoir, lenght: loc + lenght \
+                            if loc + lenght <= t_bonsoir else t_bonsoir
 
-width, height = 1600, 1200
+    def draw(self, xy, side):
+        # TODO: check if we can draw first
+        color = random.choice(self.colors)
+        self._draw.rectangle((xy, (xy[0] + side, xy[1] + side)), fill=color)
 
-im = Image.new("RGB", (width, height), (0, 0, 0))
+        self.borders.append(self._compute_borders(xy, side))
+        return self.borders
 
-def draw_square(start_x, start_y, side_lenght, color):
-    up_to = lambda pos, lenght, limit : pos + lenght + 1 \
-                   if pos + lenght <= limit else limit + 1
+    def _compute_borders(self, xy, side):
+        x, y = xy
+        w, h = self.size
+        border = f"{x}-{self.up_to(x, w, side-1)}",\
+                 f"{y}-{self.up_to(y, h, side-1)}"
+        return border
 
-    for x in range(up_to(start_x, width, side_lenght)):
-        for y in range(up_to(start_y, height, side_lenght)):
-            im.putpixel((x,y), color)
 
+width, height = 100, 100
+image = Image.new("RGB", (width, height), (0, 0, 0))
 
-rd = lambda limit : random.randint(1, limit)
+test = Square(image)
+borders = test.draw((0,0),70)
+print(borders)
 
-i, j = rd(width), rd(height)
-square = rd(min(width, height))
-color = random.choice(palette_colors)
-
-draw_square(i, j, square, color)
-
-im.save("square.png", "PNG")
+image.save("test.png", "PNG")
