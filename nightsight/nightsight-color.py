@@ -3,6 +3,20 @@ import random
 
 
 def draw(new, x, y, r_x, r_y, dots, color):
+    """
+    Draw black dots on the selected area.
+    Args:
+        new: the final image
+        x, y: start coordinates of the area/block
+        r_x, r_y: maximum width and height in pixels for the block
+        dots: number of colored dots needed in the area
+        color: average color of the block
+    Returns:
+        new: updated image
+    """
+
+    color = tuple([round(i/5) for i in color]) # the cloors are dimmed
+
     available = list()
     for i in range(r_x):
         for j in range(r_y):
@@ -17,6 +31,17 @@ def draw(new, x, y, r_x, r_y, dots, color):
     return new
 
 def blocks(image, x, y):
+    """
+    Determine the dimensions of a block.
+    Args:
+        Image: PIL object of the image
+        x, y: start coordinates of the block
+    Returns:
+        r_x, r_y: maximum width and height of the block
+        dots: number of colored dots that need to be on the area.
+        color: color of the dots
+    """
+
     w, h = image.size
     image_black = image.convert("L")
     r_x = w - (x+1)
@@ -34,11 +59,12 @@ def blocks(image, x, y):
             block.append(color)
             block_black.append(color_black)
 
+    # get the average of each color
     r = round(sum([i[0] for i in block]) / len(block))
     g = round(sum([i[1] for i in block]) / len(block))
     b = round(sum([i[2] for i in block]) / len(block))
-
     color = (r, g, b)
+
     if len(block) == 0:
         average = 0
     else:
@@ -48,7 +74,16 @@ def blocks(image, x, y):
 
     return r_x, r_y, dots, color
 
-def nightsight(image):
+def nightsight_color(image):
+    """
+    Main function for the nightsight filter.
+    Args:
+        image: PIL object of the image
+    Retuns:
+        new: image processed through the filter
+    """
+
+    # make sure the image is RGB
     image = image.convert("RGB")
     new = Image.new("RGB", image.size, 0)
     w, h = image.size
@@ -61,5 +96,5 @@ def nightsight(image):
 
 if __name__ == "__main__":
     image = Image.open("lena.png")
-    new = nightsight(image)
+    new = nightsight_color(image)
     new.save("test.png", "PNG")
