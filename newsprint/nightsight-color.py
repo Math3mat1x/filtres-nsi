@@ -1,21 +1,8 @@
 from PIL import Image
 import random
 
-b_s = 5 # block size
 
-bg = 0
-c = 128
-
-im = Image.open("lena.png")
-im = im.convert("RGB")
-im_black = im.convert("L")
-
-new = Image.new("RGB", im.size, bg)
-w, h = im.size
-
-colors = list()
-
-def draw(x, y, r_x, r_y, dots, color):
+def draw(new, x, y, r_x, r_y, dots, color):
     available = list()
     for i in range(r_x):
         for j in range(r_y):
@@ -27,18 +14,22 @@ def draw(x, y, r_x, r_y, dots, color):
         p = (p[0]+x, p[1]+y)
         new.putpixel(p, color)
 
-def blocks(x, y):
+    return new
+
+def blocks(image, x, y):
+    w, h = image.size
+    image_black = image.convert("L")
     r_x = w - (x+1)
     r_y = h - (y+1)
-    r_x = b_s if r_x > b_s else r_x
-    r_y = b_s if r_y > b_s else r_y
+    r_x = 5 if r_x > 5 else r_x
+    r_y = 5 if r_y > 5 else r_y
 
     block = list()
     block_black = list()
     for i in range(r_x):
         for j in range(r_y):
-            color = im.getpixel((x+i, y+j))
-            color_black = im_black.getpixel((x+i, y+j))
+            color = image.getpixel((x+i, y+j))
+            color_black = image_black.getpixel((x+i, y+j))
 
             block.append(color)
             block_black.append(color_black)
@@ -55,14 +46,20 @@ def blocks(x, y):
 
     dots = round(average * r_x * r_y / 256)
 
-    draw(x, y, r_x, r_y, dots, color)
-    return dots
+    return r_x, r_y, dots, color
 
+def nightsight(image):
+    image = image.convert("RGB")
+    new = Image.new("RGB", image.size, 0)
+    w, h = image.size
 
+    for y in range(0, h, 5):
+        for x in range(0, w, 5):
+            r_x, r_y, dots, color = blocks(image, x, y)
+            new = draw(new, x, y, r_x, r_y, dots, color)
+    return new
 
-for y in range(0, h, b_s):
-    for x in range(0, w, b_s):
-        blocks(x, y)
-
-
-new.save("lena-nightsight.png", "PNG")
+if __name__ == "__main__":
+    image = Image.open("lena.png")
+    new = nightsight(image)
+    new.save("test.png", "PNG")
