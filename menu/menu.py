@@ -60,7 +60,7 @@ def list_images(*args):
 
     try:
         files = [f for f in os.listdir() if os.path.isfile(os.path.join(f))]
-        available = [f for f in files if not f in i_m and f.split(".")[-1].lower() in ["jpg", "png"]]
+        available = [f for f in files if not f in i_m and f.split(".")[-1].lower() in ["jpg", "png", "jpeg"]]
     except:
         pass
 
@@ -113,7 +113,7 @@ def save(*args):
     name = args[1]
     if image in imported_images.keys():
         if image.split(".")[-1].lower() == "jpg":
-            imported_images[image].save(name, "JBG", 0)
+            imported_images[image].save(name, "JPEG", quality=100)
         else:
             imported_images[image].save(name, "PNG")
         del(imported_images[image])
